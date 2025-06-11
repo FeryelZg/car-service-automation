@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite name="AutoTeamTestSuite" parallel="methods" thread-count="2">
+
+    <listeners>
+        <listener class-name="com.carservice.automation.listeners.TestListener"/>
+    </listeners>
+
+    <!-- Smoke Tests - Critical functionality -->
+    <test name="SmokeTests" preserve-order="true">
+        <parameter name="browser" value="chrome"/>
+        <groups>
+            <run>
+                <include name="smoke"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.carservice.automation.tests.enduser.ConnectivityTest"/>
+            <class name="com.carservice.automation.tests.enduser.BookAppointmentTest"/>
+        </classes>
+    </test>
+
+    <!-- Connectivity Tests -->
+    <test name="ConnectivityTests" preserve-order="true">
+        <parameter name="browser" value="chrome"/>
+        <groups>
+            <run>
+                <include name="connectivity"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.carservice.automation.tests.enduser.ConnectivityTest"/>
+        </classes>
+    </test>
+
+    <!-- Appointment Booking Tests -->
+    <test name="AppointmentTests" preserve-order="true">
+        <parameter name="browser" value="chrome"/>
+        <groups>
+            <run>
+                <include name="appointment"/>
+                <include name="validation"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.carservice.automation.tests.enduser.BookAppointmentTest"/>
+        </classes>
+    </test>
+
+    <!-- Regression Tests - All essential tests -->
+    <test name="RegressionTests" preserve-order="false">
+        <parameter name="browser" value="chrome"/>
+        <groups>
+            <run>
+                <include name="smoke"/>
+                <include name="connectivity"/>
+                <include name="appointment"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.carservice.automation.tests.enduser.ConnectivityTest"/>
+            <class name="com.carservice.automation.tests.enduser.BookAppointmentTest"/>
+        </classes>
+    </test>
+
+</suite>

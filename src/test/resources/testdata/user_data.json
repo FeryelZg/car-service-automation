@@ -1,0 +1,107 @@
+{
+  "admin_users": {
+    "primary_admin": {
+      "username": "admin@carservice.com",
+      "password": "admin123",
+      "role": "super_admin",
+      "branch": "all"
+    },
+    "branch_manager": {
+      "username": "manager@carservice.com",
+      "password": "manager123",
+      "role": "branch_manager",
+      "branch": "main_street"
+    },
+    "technician": {
+      "username": "tech@carservice.com",
+      "password": "tech123",
+      "role": "technician",
+      "branch": "main_street"
+    }
+  },
+
+  "test_customers": {
+    "valid_customer": {
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john.doe@example.com",
+      "phone": "+1234567890",
+      "address": {
+        "street": "123 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "zipCode": "12345"
+      },
+      "vehicleInfo": {
+        "make": "Toyota",
+        "model": "Camry",
+        "year": "2020",
+        "licensePlate": "ABC123",
+        "vin": "1HGBH41JXMN109186"
+      }
+    },
+    "premium_customer": {
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "email": "jane.smith@example.com",
+      "phone": "+1234567891",
+      "membershipLevel": "Premium",
+      "vehicleInfo": {
+        "make": "BMW",
+        "model": "X5",
+        "year": "2022",
+        "licensePlate": "XYZ789"
+      }
+    }
+  },
+
+  "booking_data": {
+    "oil_change": {
+      "service": "Oil Change",
+      "duration": 60,
+      "price": 45.99,
+      "category": "maintenance"
+    },
+    "brake_service": {
+      "service": "Brake Inspection",
+      "duration": 90,
+      "price": 89.99,
+      "category": "safety"
+    },
+    "diagnostic": {
+      "service": "Engine Diagnostic",
+      "duration": 120,
+      "price": 125.00,
+      "category": "diagnostic"
+    },
+    "tire_rotation": {
+      "service": "Tire Rotation",
+      "duration": 45,
+      "price": 35.99,
+      "category": "maintenance"
+    }
+  },
+
+  "appointment_times": {
+    "available_slots": [
+      "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"
+    ],
+    "business_days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "holidays": ["2024-12-25", "2024-01-01", "2024-07-04"]
+  },
+
+  "branches": {
+    "main_street": {
+      "name": "Main Street Branch",
+      "address": "456 Main Street, Anytown, CA 12345",
+      "phone": "+1555123456",
+      "services": ["oil_change", "brake_service", "diagnostic", "tire_rotation"]
+    },
+    "downtown": {
+      "name": "Downtown Branch",
+      "address": "789 Downtown Ave, Anytown, CA 12346",
+      "phone": "+1555123457",
+      "services": ["oil_change", "diagnostic"]
+    }
+  }
+}
