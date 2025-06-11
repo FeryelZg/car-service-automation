@@ -2,6 +2,8 @@ package com.carservice.automation.base;
 
 import com.carservice.automation.utils.ConfigReader;
 import com.carservice.automation.utils.ScreenshotUtils;
+import com.carservice.automation.utils.AllureUtils;
+import io.qameta.allure.Step;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
@@ -52,43 +54,27 @@ public class BaseTest {
 
             logger.info("🌐 Browser configuration: {} (headless: {})", browserName, headless);
 
-            // DETAILED driver initialization with error handling
-            logger.info("🔍 Checking DriverManager availability...");
-
-            // Verify DriverManager class exists
-            try {
-                Class<?> driverManagerClass = Class.forName("com.carservice.automation.base.DriverManager");
-                logger.info("✅ DriverManager class found: {}", driverManagerClass.getName());
-            } catch (ClassNotFoundException e) {
-                logger.error("❌ CRITICAL: DriverManager class not found!");
-                logger.error("❌ Make sure com.carservice.automation.base.DriverManager exists in your classpath");
-                throw new RuntimeException("DriverManager class not found", e);
-            }
-
+            // Initialize driver with detailed error handling
             logger.info("🔧 Calling DriverManager.initializeDriver...");
 
-            // Initialize driver with detailed error handling
             try {
                 driver = DriverManager.initializeDriver(browserName, headless);
 
                 if (driver == null) {
                     logger.error("❌ CRITICAL: DriverManager.initializeDriver() returned null!");
-                    logger.error("❌ This indicates a failure in driver creation process");
                     throw new RuntimeException("Driver initialization returned null");
                 }
 
                 logger.info("✅ Driver initialized successfully: {}", driver.getClass().getSimpleName());
-                logger.info("📊 Driver session: {}", driver.toString());
 
                 // Initialize WebDriverWait
                 int explicitWait = Integer.parseInt(getConfigProperty("explicit.wait", "20"));
                 wait = new WebDriverWait(driver, Duration.ofSeconds(explicitWait));
                 logger.info("✅ WebDriverWait initialized with {} seconds timeout", explicitWait);
 
-                // Test basic driver functionality
-                logger.info("🧪 Testing basic driver functionality...");
-                String initialUrl = driver.getCurrentUrl();
-                logger.info("📍 Initial URL: {}", initialUrl);
+                // Initialize AllureUtils with driver
+                AllureUtils.initialize(driver);
+                logger.info("✅ AllureUtils initialized");
 
                 logger.info("🎉 Driver setup completed successfully!");
 
@@ -97,25 +83,16 @@ public class BaseTest {
                 logger.error("💥 Exception type: {}", driverEx.getClass().getSimpleName());
                 logger.error("💥 Exception message: {}", driverEx.getMessage());
 
-                // Provide helpful troubleshooting information
                 provideTroubleshootingInfo(browserName, driverEx);
-
-                // Ensure driver is null for safety
                 driver = null;
-
                 throw new RuntimeException("Driver initialization failed: " + driverEx.getMessage(), driverEx);
             }
 
         } catch (Exception e) {
             logger.error("💥 TEST SETUP FAILED!");
             logger.error("💥 Error: {}", e.getMessage());
-
-            // Set driver to null to be safe
             driver = null;
-
-            // Log additional debug information
             logSystemDebugInfo();
-
             throw new RuntimeException("Test setup failed: " + e.getMessage(), e);
         }
 
@@ -128,20 +105,8 @@ public class BaseTest {
         logger.info("Test result status: {}", getTestResultStatus(result.getStatus()));
 
         try {
-            // Take screenshot on failure
-            if (result.getStatus() == ITestResult.FAILURE) {
-                logger.info("📸 Test failed, taking screenshot...");
-                try {
-                    if (driver != null) {
-                        ScreenshotUtils.takeFailureScreenshot(result.getMethod().getMethodName());
-                        logger.info("✅ Failure screenshot captured");
-                    } else {
-                        logger.warn("⚠️ Cannot take screenshot - driver is null");
-                    }
-                } catch (Exception e) {
-                    logger.warn("⚠️ Failed to take screenshot: {}", e.getMessage());
-                }
-            }
+            // Handle test results with Allure
+            handleTestResult(result);
 
             // Close browser
             if (driver != null) {
@@ -157,14 +122,15 @@ public class BaseTest {
                 logger.warn("⚠️ Driver was null during teardown - setup likely failed");
             }
 
-            // Also cleanup DriverManager
+            // Cleanup DriverManager and AllureUtils
             try {
                 if (DriverManager.isDriverInitialized()) {
                     logger.info("🧹 Cleaning up DriverManager...");
                     DriverManager.quitDriver();
                 }
+                AllureUtils.cleanup();
             } catch (Exception e) {
-                logger.warn("⚠️ Error during DriverManager cleanup: {}", e.getMessage());
+                logger.warn("⚠️ Error during cleanup: {}", e.getMessage());
             }
 
         } catch (Exception e) {
@@ -182,11 +148,10 @@ public class BaseTest {
     /**
      * Navigate to End User Application
      */
+    @Step("Navigate to End User Application")
     protected void navigateToEndUserApp() {
         if (driver == null) {
             logger.error("❌ CRITICAL: Driver is null in navigateToEndUserApp()!");
-            logger.error("❌ This means the @BeforeMethod setup() failed!");
-            logger.error("❌ Check the setup() method logs above for the root cause.");
             throw new RuntimeException("Driver is null - setup may have failed. Check logs for DriverManager initialization errors.");
         }
 
@@ -194,11 +159,14 @@ public class BaseTest {
         logger.info("🌐 Navigating to End User App: {}", url);
 
         try {
+            AllureUtils.addParameter("Application URL", url);
             driver.get(url);
             logger.info("✅ Navigation completed successfully");
             waitForPageToLoad();
+            AllureUtils.attachScreenshot("Application Loaded");
         } catch (Exception e) {
             logger.error("❌ Navigation failed: {}", e.getMessage());
+            AllureUtils.attachScreenshot("Navigation Failed");
             throw new RuntimeException("Navigation to end user app failed", e);
         }
     }
@@ -206,11 +174,10 @@ public class BaseTest {
     /**
      * Navigate to Backoffice Application
      */
+    @Step("Navigate to Backoffice Application")
     protected void navigateToBackofficeApp() {
         if (driver == null) {
             logger.error("❌ CRITICAL: Driver is null in navigateToBackofficeApp()!");
-            logger.error("❌ This means the @BeforeMethod setup() failed!");
-            logger.error("❌ Check the setup() method logs above for the root cause.");
             throw new RuntimeException("Driver is null - setup may have failed. Check logs for DriverManager initialization errors.");
         }
 
@@ -218,11 +185,14 @@ public class BaseTest {
         logger.info("🌐 Navigating to Backoffice App: {}", url);
 
         try {
+            AllureUtils.addParameter("Backoffice URL", url);
             driver.get(url);
             logger.info("✅ Navigation completed successfully");
             waitForPageToLoad();
+            AllureUtils.attachScreenshot("Backoffice Loaded");
         } catch (Exception e) {
             logger.error("❌ Navigation failed: {}", e.getMessage());
+            AllureUtils.attachScreenshot("Navigation Failed");
             throw new RuntimeException("Navigation to backoffice app failed", e);
         }
     }
@@ -230,6 +200,7 @@ public class BaseTest {
     /**
      * Wait for page to be fully loaded
      */
+    @Step("Wait for page to load completely")
     protected void waitForPageToLoad() {
         try {
             logger.info("⏳ Waiting for page to load...");
@@ -237,6 +208,7 @@ public class BaseTest {
                     ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
             Thread.sleep(1000); // Additional buffer
             logger.info("✅ Page loaded successfully");
+            AllureUtils.logStep("Page loaded successfully");
         } catch (Exception e) {
             logger.warn("⚠️ Page load wait issue: {}", e.getMessage());
         }
@@ -245,16 +217,59 @@ public class BaseTest {
     /**
      * Take screenshot with custom name
      */
+    @Step("Take screenshot: {name}")
     protected void takeScreenshot(String name) {
         try {
             if (driver != null) {
                 ScreenshotUtils.takeScreenshot(name);
+                AllureUtils.attachScreenshot(name);
                 logger.info("✅ Screenshot taken: {}", name);
             } else {
                 logger.warn("⚠️ Cannot take screenshot - driver is null");
             }
         } catch (Exception e) {
             logger.warn("⚠️ Failed to take screenshot '{}': {}", name, e.getMessage());
+        }
+    }
+
+    /**
+     * Handle test results for Allure reporting
+     */
+    private void handleTestResult(ITestResult result) {
+        String testName = result.getMethod().getMethodName();
+
+        switch (result.getStatus()) {
+            case ITestResult.SUCCESS:
+                AllureUtils.addTestResult("PASSED");
+                AllureUtils.addParameter("Test Status", "PASSED");
+                logger.info("✅ Test PASSED: {}", testName);
+                break;
+
+            case ITestResult.FAILURE:
+                logger.info("❌ Test FAILED: {}", testName);
+                try {
+                    if (driver != null) {
+                        AllureUtils.attachScreenshot("Failure Screenshot");
+                        ScreenshotUtils.takeFailureScreenshot(testName);
+                        logger.info("✅ Failure screenshot captured");
+                    }
+                } catch (Exception e) {
+                    logger.warn("⚠️ Failed to take failure screenshot: {}", e.getMessage());
+                }
+
+                // Add failure information to Allure
+                Throwable throwable = result.getThrowable();
+                if (throwable != null) {
+                    AllureUtils.addFailureInfo("Test failed: " + throwable.getMessage(),
+                            (Exception) throwable);
+                }
+                break;
+
+            case ITestResult.SKIP:
+                AllureUtils.addParameter("Test Status", "SKIPPED");
+                AllureUtils.logStep("Test was skipped");
+                logger.info("⏭️ Test SKIPPED: {}", testName);
+                break;
         }
     }
 
@@ -323,11 +338,6 @@ public class BaseTest {
                 System.getProperty("os.arch"));
         logger.error("Working Directory: {}", System.getProperty("user.dir"));
         logger.error("Java Home: {}", System.getProperty("java.home"));
-
-        // Check for Chrome in PATH
-        String path = System.getenv("PATH");
-        boolean chromeInPath = path != null && (path.contains("Chrome") || path.contains("chrome"));
-        logger.error("Chrome likely in PATH: {}", chromeInPath);
     }
 
     /**
