@@ -17,6 +17,9 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <browser>chrome</browser>
+        <headless>false</headless>
+        <explicit.wait>20</explicit.wait>
         <maven.surefire.version>3.0.0</maven.surefire.version>
         <!-- Essential Dependency Versions -->
         <selenium.version>4.18.1</selenium.version>
@@ -25,6 +28,7 @@
         <aspectj.version>1.9.19</aspectj.version>
         <webdrivermanager.version>5.6.3</webdrivermanager.version>
         <log4j.version>2.22.1</log4j.version>
+
     </properties>
 
     <dependencies>
@@ -107,10 +111,27 @@
                     </argLine>
                     <systemPropertyVariables>
                         <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+                        <browser>${browser}</browser>
+                        <headless>${headless}</headless>
+                        <explicit.wait>${explicit.wait}</explicit.wait>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
+                    <systemProperties>
+                        <property>
+                            <name>browser</name>
+                            <value>${browser}</value>
+                        </property>
+                        <property>
+                            <name>headless</name>
+                            <value>${headless}</value>
+                        </property>
+                        <property>
+                            <name>explicit.wait</name>
+                            <value>${explicit.wait}</value>
+                        </property>
+                    </systemProperties>
                 </configuration>
             </plugin>
 

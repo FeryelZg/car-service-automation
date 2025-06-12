@@ -35,7 +35,7 @@ public class InterventionSchedulingTest extends BaseTest {
         interventionsPage = new InterventionsPage(driver);
     }
 
-    @Test(description = "Schedule intervention in calendar by drag and drop")
+    @Test(groups = {"e2e", "backoffice", "calendar"}, description = "Schedule intervention in calendar by drag and drop")
     @Story("Calendar Scheduling")
     @Severity(SeverityLevel.CRITICAL)
     @Description("Test the complete flow of scheduling an intervention request in the calendar by dragging and dropping to an available time slot")
@@ -60,7 +60,7 @@ public class InterventionSchedulingTest extends BaseTest {
         }
     }
 
-    @Test(description = "Verify intervention scheduling constraints")
+    @Test(groups = {"backoffice", "calendar"},description = "Verify intervention scheduling constraints")
     @Story("Calendar Constraints")
     @Severity(SeverityLevel.NORMAL)
     @Description("Test that intervention scheduling respects working hours, weekdays, and availability constraints")
@@ -89,7 +89,7 @@ public class InterventionSchedulingTest extends BaseTest {
         }
     }
 
-    @Test(description = "Test intervention drag and drop functionality")
+    @Test(groups = {"backoffice", "calendar"},description = "Test intervention drag and drop functionality")
     @Story("Drag and Drop")
     @Severity(SeverityLevel.NORMAL)
     @Description("Test the drag and drop mechanism for intervention scheduling")

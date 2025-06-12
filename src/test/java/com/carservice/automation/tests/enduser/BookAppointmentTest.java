@@ -27,7 +27,7 @@ public class BookAppointmentTest extends BaseTest {
     private RepairerSelectionPage repairerSelectionPage;
     private AppointmentConfirmationPage confirmationPage;
 
-    @Test(groups = {"smoke", "appointment", "e2e"})
+    @Test(groups = {"e2e", "appointment", "enduser"})
     @Story("Complete Appointment Flow with All Scenarios")
     @Severity(SeverityLevel.CRITICAL)
     @Description("Validates complete appointment booking flow with and without file upload")
