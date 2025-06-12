@@ -37,7 +37,14 @@ public class BaseTest {
             config = null;
         }
     }
-
+    private String getSystemPropertyOrDefault(String propertyName, String defaultValue) {
+        String systemValue = System.getProperty(propertyName);
+        if (systemValue != null && !systemValue.trim().isEmpty()) {
+            logger.info("📋 System property '{}' = '{}'", propertyName, systemValue);
+            return systemValue;
+        }
+        return getConfigProperty(propertyName, defaultValue);
+    }
     @BeforeMethod
     @Parameters({"browser"})
     public void setup(@Optional("chrome") String browser) {

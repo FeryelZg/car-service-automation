@@ -17,7 +17,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
+        <maven.surefire.version>3.0.0</maven.surefire.version>
         <!-- Essential Dependency Versions -->
         <selenium.version>4.18.1</selenium.version>
         <testng.version>7.9.0</testng.version>
