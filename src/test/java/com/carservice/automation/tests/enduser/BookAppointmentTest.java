@@ -1,10 +1,10 @@
 package com.carservice.automation.tests.enduser;
 
 import com.carservice.automation.base.BaseTest;
-import com.carservice.automation.pages.VehicleIdentificationPage;
-import com.carservice.automation.pages.AppointmentFormPage;
-import com.carservice.automation.pages.RepairerSelectionPage;
-import com.carservice.automation.pages.AppointmentConfirmationPage;
+import com.carservice.automation.pages.enduser.VehicleIdentificationPage;
+import com.carservice.automation.pages.enduser.AppointmentFormPage;
+import com.carservice.automation.pages.enduser.RepairerSelectionPage;
+import com.carservice.automation.pages.enduser.AppointmentConfirmationPage;
 import com.carservice.automation.utils.AllureUtils;
 import io.qameta.allure.*;
 import org.apache.logging.log4j.LogManager;

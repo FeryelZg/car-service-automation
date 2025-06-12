@@ -1,46 +1,201 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 
-<suite name="AutoTeamTestSuite" parallel="methods" thread-count="2">
+<suite name="AutoTeam E2E Test Suite" verbose="1" parallel="false">
 
-    <listeners>
-        <listener class-name="com.carservice.automation.listeners.TestListener"/>
-    </listeners>
-
-    <!-- Smoke Tests - Critical functionality -->
-    <test name="SmokeTests" preserve-order="true">
+    <!-- =================================================================== -->
+    <!-- COMPLETE E2E FLOW: Create appointment → Verify in backoffice       -->
+    <!-- =================================================================== -->
+    <test name="Complete E2E Appointment Flow with Calendar" preserve-order="true">
         <parameter name="browser" value="chrome"/>
+
+        <groups>
+            <run>
+                <include name="e2e"/>
+                <include name="appointment"/>
+                <include name="backoffice"/>
+                <include name="calendar"/>
+            </run>
+        </groups>
+
+        <classes>
+            <!-- STEP 1: Create appointment in end-user app -->
+            <class name="com.carservice.automation.tests.enduser.BookAppointmentTest">
+                <methods>
+                    <!-- UPDATE: Change method name to match your implementation -->
+                    <include name="testCompleteAppointmentFlow_AllScenarios"/>
+                </methods>
+            </class>
+
+            <!-- STEP 2: Verify appointment appears in backoffice -->
+            <class name="com.carservice.automation.tests.backoffice.AppointmentVerificationTest">
+                <methods>
+                    <!-- This test depends on the appointment being created above -->
+                    <include name="testAppointmentVerificationInBackoffice"/>
+                </methods>
+            </class>
+
+            <!-- STEP 3: Schedule appointment in calendar -->
+            <class name="com.carservice.automation.tests.backoffice.AppointmentVerificationTest">
+                <methods>
+                    <include name="testCompleteE2EFlowWithCalendarScheduling"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+    <!-- =================================================================== -->
+    <!-- SMOKE TESTS: Quick validation of critical functionality             -->
+    <!-- =================================================================== -->
+    <test name="Smoke Tests" preserve-order="false">
+        <parameter name="browser" value="chrome"/>
+
         <groups>
             <run>
                 <include name="smoke"/>
             </run>
         </groups>
+
         <classes>
-            <class name="com.carservice.automation.tests.enduser.ConnectivityTest"/>
+
             <class name="com.carservice.automation.tests.enduser.BookAppointmentTest"/>
+            <class name="com.carservice.automation.tests.backoffice.AppointmentVerificationTest">
+                <methods>
+                    <include name="testQuickAppointmentVerification"/>
+                </methods>
+            </class>
         </classes>
     </test>
 
-    <!-- Connectivity Tests -->
-    <test name="ConnectivityTests" preserve-order="true">
+    <!-- =================================================================== -->
+    <!-- END USER TESTS: Frontend appointment creation and validation        -->
+    <!-- =================================================================== -->
+    <test name="End User Application Tests" preserve-order="false">
         <parameter name="browser" value="chrome"/>
-        <groups>
-            <run>
-                <include name="connectivity"/>
-            </run>
-        </groups>
-        <classes>
-            <class name="com.carservice.automation.tests.enduser.ConnectivityTest"/>
-        </classes>
-    </test>
 
-    <!-- Appointment Booking Tests -->
-    <test name="AppointmentTests" preserve-order="true">
-        <parameter name="browser" value="chrome"/>
         <groups>
             <run>
                 <include name="appointment"/>
+                <include name="enduser"/>
+                <include name="frontend"/>
+            </run>
+        </groups>
+
+        <classes>
+            <!-- UPDATE: Replace with your actual end-user test classes -->
+            <class name="com.carservice.automation.tests.enduser.BookAppointmentTest">
+                <methods>
+                    <!-- Include all your appointment-related test methods -->
+                    <include name="testCompleteAppointmentFlow_AllScenarios"/>
+                    <!-- ADD: Include other methods if you have them -->
+                    <include name="testVehicleIdentificationValidation"/>
+                    <include name="testAppointmentFormValidation"/>
+                </methods>
+            </class>
+
+            <!-- ADD: Include other end-user test classes if you have them -->
+<!--             <class name="com.carservice.automation.tests.enduser.LoginTest"/> -->
+<!--             <class name="com.carservice.automation.tests.enduser.NavigationTest"/> -->
+        </classes>
+    </test>
+
+    <!-- =================================================================== -->
+    <!-- BACKOFFICE TESTS: Admin panel functionality and verification        -->
+    <!-- =================================================================== -->
+    <test name="Backoffice Application Tests" preserve-order="false">
+        <parameter name="browser" value="chrome"/>
+
+        <groups>
+            <run>
+                <include name="backoffice"/>
+                <include name="admin"/>
+                <include name="verification"/>
+            </run>
+        </groups>
+
+        <classes>
+            <!-- Backoffice appointment verification tests -->
+            <class name="com.carservice.automation.tests.backoffice.AppointmentVerificationTest">
+                <methods>
+                    <include name="testAppointmentVerificationInBackoffice"/>
+                    <include name="testBackofficeLoginValidation"/>
+                    <include name="testQuickAppointmentVerification"/>
+                </methods>
+            </class>
+
+            <!-- ADD: Include other backoffice test classes if you create them -->
+<!--             <class name="com.carservice.automation.tests.backoffice.UserManagementTest"/> -->
+<!--             <class name="com.carservice.automation.tests.backoffice.ReportsTest"/> -->
+        </classes>
+    </test>
+
+    <!-- =================================================================== -->
+    <!-- VALIDATION TESTS: Input validation and form testing                 -->
+    <!-- =================================================================== -->
+    <test name="Input Validation Tests" preserve-order="false">
+        <parameter name="browser" value="chrome"/>
+
+        <groups>
+            <run>
                 <include name="validation"/>
+                <include name="input"/>
+                <include name="forms"/>
+            </run>
+        </groups>
+
+        <classes>
+            <!-- End-user form validation -->
+            <class name="com.carservice.automation.tests.enduser.BookAppointmentTest">
+                <methods>
+                    <!-- ADD: Create specific validation test methods if needed -->
+                    <include name="testCompleteAppointmentFlow_AllScenarios"/>
+                </methods>
+            </class>
+
+            <!-- Backoffice login validation -->
+            <class name="com.carservice.automation.tests.backoffice.AppointmentVerificationTest">
+                <methods>
+                    <include name="testBackofficeLoginValidation"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+    <!-- =================================================================== -->
+    <!-- REGRESSION TESTS: Quick checks for critical functionality           -->
+    <!-- =================================================================== -->
+    <test name="Regression Tests" preserve-order="false">
+        <parameter name="browser" value="chrome"/>
+
+        <groups>
+            <run>
+                <include name="regression"/>
+                <include name="quick_check"/>
+                <include name="critical"/>
+            </run>
+        </groups>
+
+        <classes>
+            <!-- Quick appointment verification -->
+            <class name="com.carservice.automation.tests.backoffice.AppointmentVerificationTest">
+                <methods>
+                    <include name="testQuickAppointmentVerification"/>
+                </methods>
+            </class>
+
+            <!-- ADD: Include other regression tests -->
+            <!-- <class name="com.carservice.automation.tests.regression.CriticalPathTest"/> -->
+        </classes>
+    </test>
+
+    <!-- =================================================================== -->
+    <!-- BROWSER COMPATIBILITY: Run tests on different browsers             -->
+    <!-- =================================================================== -->
+    <test name="Chrome Browser Tests" preserve-order="false">
+        <parameter name="browser" value="chrome"/>
+        <groups>
+            <run>
+                <include name="smoke"/>
             </run>
         </groups>
         <classes>
@@ -48,20 +203,38 @@
         </classes>
     </test>
 
-    <!-- Regression Tests - All essential tests -->
-    <test name="RegressionTests" preserve-order="false">
-        <parameter name="browser" value="chrome"/>
+    <!-- UNCOMMENT to enable Firefox testing -->
+    <!--
+    <test name="Firefox Browser Tests" preserve-order="false">
+        <parameter name="browser" value="firefox"/>
         <groups>
             <run>
                 <include name="smoke"/>
-                <include name="connectivity"/>
-                <include name="appointment"/>
             </run>
         </groups>
         <classes>
-            <class name="com.carservice.automation.tests.enduser.ConnectivityTest"/>
             <class name="com.carservice.automation.tests.enduser.BookAppointmentTest"/>
         </classes>
     </test>
+    -->
+
+    <!-- =================================================================== -->
+    <!-- PARALLEL EXECUTION: Run independent tests in parallel              -->
+    <!-- =================================================================== -->
+    <!-- UNCOMMENT to enable parallel execution (ensure tests are independent) -->
+    <!--
+    <test name="Parallel Independent Tests" preserve-order="false" parallel="methods" thread-count="3">
+        <parameter name="browser" value="chrome"/>
+        <groups>
+            <run>
+                <include name="independent"/>
+                <include name="parallel_safe"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.carservice.automation.tests.enduser.BookAppointmentTest"/>
+        </classes>
+    </test>
+    -->
 
 </suite>

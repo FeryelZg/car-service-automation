@@ -1,4 +1,4 @@
-package com.carservice.automation.pages;
+package com.carservice.automation.pages.enduser;
 
 import com.carservice.automation.base.BasePage;
 import org.apache.logging.log4j.LogManager;

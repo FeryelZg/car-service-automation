@@ -39,7 +39,6 @@ buildNumber.properties
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
-!**/src/test/**/build/
 
 # IDE Files
 # IntelliJ IDEA
@@ -49,7 +48,6 @@ build/
 *.ipr
 out/
 !**/src/main/**/out/
-!**/src/test/**/out/
 
 # Eclipse
 .apt_generated
@@ -61,7 +59,6 @@ out/
 .sts4-cache
 bin/
 !**/src/main/**/bin/
-!**/src/test/**/bin/
 
 # VS Code
 .vscode/
@@ -84,8 +81,6 @@ screenshots/
 *.jpg
 *.gif
 
-# TestNG
-test-output/
 
 # Selenium
 *.log
@@ -107,9 +102,7 @@ Thumbs.db
 *.swp
 *.swo
 
-# Application specific
-src/test/resources/test-image.png
-config/test-config.properties
+
 
 # Environment variables
 .env
