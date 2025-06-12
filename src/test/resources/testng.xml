@@ -1,144 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 
-<!--
-<suite name="AutoTeam E2E Test Suite" verbose="1" parallel="false">
-&lt;!&ndash;    <test name="Test BaseTest Fix">
-        <classes>
-            <class name="com.carservice.automation.tests.enduser.BookAppointmentTest">
-                <methods>
-                    <include name="testCompleteAppointmentFlow_AllScenarios"/>
-                </methods>
-            </class>
-        </classes>
-    </test>&ndash;&gt;
-    &lt;!&ndash; =================================================================== &ndash;&gt;
-    &lt;!&ndash; COMPLETE E2E FLOW: Create appointment → Verify in backoffice       &ndash;&gt;
-    &lt;!&ndash; =================================================================== &ndash;&gt;
-    <test name="Complete E2E Appointment Flow with Calendar">
-        <parameter name="browser" value="chrome"/>
 
-        <groups>
-            <run>
-                <include name="e2e"/>
-                <include name="appointment"/>
-                <include name="backoffice"/>
-                <include name="calendar"/>
-            </run>
-        </groups>
-
-        <classes>
-            &lt;!&ndash; STEP 1: Create appointment in end-user app &ndash;&gt;
-            <class name="com.carservice.automation.tests.enduser.BookAppointmentTest">
-                <methods>
-                    &lt;!&ndash; UPDATE: Change method name to match your implementation &ndash;&gt;
-                    <include name="testCompleteAppointmentFlow_AllScenarios"/>
-                </methods>
-            </class>
-
-            &lt;!&ndash; STEP 2: Verify appointment appears in backoffice &ndash;&gt;
-            <class name="com.carservice.automation.tests.backoffice.InterventionSchedulingTest">
-                <methods>
-                    &lt;!&ndash; This test depends on the appointment being created above &ndash;&gt;
-                    <include name="shouldScheduleInterventionInCalendar"/>
-                    <include name="shouldRespectSchedulingConstraints"/>
-
-                </methods>
-            </class>
-
-            &lt;!&ndash; STEP 3: Schedule appointment in calendar &ndash;&gt;
-            <class name="com.carservice.automation.tests.backoffice.InterventionSchedulingTest">
-                <methods>
-                    <include name="shouldRespectSchedulingConstraints"/>
-                    <include name="shouldPerformDragAndDropSuccessfully"/>
-                </methods>
-            </class>
-        </classes>
-    </test>
-
-    &lt;!&ndash; =================================================================== &ndash;&gt;
-    &lt;!&ndash; SMOKE TESTS: Quick validation of critical functionality             &ndash;&gt;
-    &lt;!&ndash; =================================================================== &ndash;&gt;
-    <test name="Smoke Tests" preserve-order="false">
-        <parameter name="browser" value="chrome"/>
-
-        <groups>
-            <run>
-                <include name="smoke"/>
-            </run>
-        </groups>
-
-        <classes>
-
-            <class name="com.carservice.automation.tests.enduser.BookAppointmentTest"/>
-            <class name="com.carservice.automation.tests.backoffice.InterventionSchedulingTest">
-                <methods>
-                    <include name="shouldScheduleInterventionInCalendar"/>
-                </methods>
-            </class>
-        </classes>
-    </test>
-
-    &lt;!&ndash; =================================================================== &ndash;&gt;
-    &lt;!&ndash; END USER TESTS: Frontend appointment creation and validation        &ndash;&gt;
-    &lt;!&ndash; =================================================================== &ndash;&gt;
-    <test name="End User Application Tests" preserve-order="false">
-        <parameter name="browser" value="chrome"/>
-
-        <groups>
-            <run>
-                <include name="appointment"/>
-                <include name="enduser"/>
-                <include name="frontend"/>
-            </run>
-        </groups>
-
-        <classes>
-            &lt;!&ndash; UPDATE: Replace with your actual end-user test classes &ndash;&gt;
-            <class name="com.carservice.automation.tests.enduser.BookAppointmentTest">
-                <methods>
-                    &lt;!&ndash; Include all your appointment-related test methods &ndash;&gt;
-                    <include name="testCompleteAppointmentFlow_AllScenarios"/>
-                </methods>
-            </class>
-
-            &lt;!&ndash; ADD: Include other end-user test classes if you have them &ndash;&gt;
-&lt;!&ndash;             <class name="com.carservice.automation.tests.enduser.LoginTest"/> &ndash;&gt;
-&lt;!&ndash;             <class name="com.carservice.automation.tests.enduser.NavigationTest"/> &ndash;&gt;
-        </classes>
-    </test>
-
-</suite>-->
 <suite name="AutoTeam E2E Test Suite" verbose="1" parallel="false">
 
-    <!-- E2E Tests with groups -->
-    <test name="E2E Flow Tests">
-        <groups>
-            <run>
-                <include name="e2e"/>
-            </run>
-        </groups>
-        <classes>
-            <class name="com.carservice.automation.tests.enduser.BookAppointmentTest"/>
-            <class name="com.carservice.automation.tests.backoffice.InterventionSchedulingTest"/>
-        </classes>
-    </test>
+    <!-- Define parameters at suite level -->
+    <parameter name="browser" value="chrome"/>
+    <parameter name="headless" value="false"/>
 
-    <!-- Smoke Tests -->
-    <test name="Smoke Tests">
-        <groups>
-            <run>
-                <include name="smoke"/>
-            </run>
-        </groups>
-        <classes>
-            <class name="com.carservice.automation.tests.enduser.BookAppointmentTest"/>
-            <class name="com.carservice.automation.tests.backoffice.InterventionSchedulingTest"/>
-        </classes>
-    </test>
-
-    <!-- All Tests (no group filtering) -->
-    <test name="All Tests">
+    <!-- Single test section to avoid conflicts -->
+    <test name="AutoTeam Tests">
         <classes>
             <class name="com.carservice.automation.tests.enduser.BookAppointmentTest"/>
             <class name="com.carservice.automation.tests.backoffice.InterventionSchedulingTest"/>
