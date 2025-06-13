@@ -35,6 +35,7 @@ public class ScreenshotUtils {
      * @param suffix Custom suffix for filename
      * @return Screenshot file path
      */
+    
     public static String takeScreenshot(String testName, String suffix) {
         try {
             // Ensure screenshot directory exists
