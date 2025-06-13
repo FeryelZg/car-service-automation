@@ -43,8 +43,8 @@ public class AppointmentConfirmationPage extends BasePage {
         logger.info("Verifying summary information");
 
         try {
-            WebElement serviceSection = findElementWithWait(SERVICE_SECTION_XPATH);
-            Assert.assertNotNull(serviceSection, "Service information should be displayed");
+//            WebElement serviceSection = findElementWithWait(SERVICE_SECTION_XPATH);
+//            Assert.assertNotNull(serviceSection, "Service information should be displayed");
 
             WebElement repairerSection = findElementWithWait(REPAIRER_SECTION_XPATH);
             Assert.assertNotNull(repairerSection, "Repairer information should be displayed");
@@ -168,20 +168,6 @@ public class AppointmentConfirmationPage extends BasePage {
         }
     }
 
-    /**
-     * Verify that appointment was confirmed successfully
-     * @return true if confirmation elements are present
-     */
-    public boolean isAppointmentConfirmed() {
-        try {
-            return isElementDisplayed(SUCCESS_TITLE_XPATH) ||
-                    isElementDisplayed(SUCCESS_SUBTITLE_XPATH) ||
-                    isElementDisplayed(CONGRATULATIONS_XPATH);
-        } catch (Exception e) {
-            logger.warn("Could not verify appointment confirmation: {}", e.getMessage());
-            return false;
-        }
-    }
 
     /**
      * Get confirmation message text

@@ -268,7 +268,7 @@ public class BaseTest {
     /**
      * Get configuration property with fallback
      */
-    private String getConfigProperty(String key, String defaultValue) {
+    public String getConfigProperty(String key, String defaultValue) {
         try {
             if (config != null) {
                 String value = config.getProperty(key);

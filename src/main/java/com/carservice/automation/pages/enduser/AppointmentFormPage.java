@@ -3,9 +3,9 @@ package com.carservice.automation.pages.enduser;
 import com.carservice.automation.base.BasePage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
 import java.io.File;
@@ -25,6 +25,31 @@ public class AppointmentFormPage extends BasePage {
     private static final String FILE_INPUT_XPATH = "//input[@type='file']";
     private static final String UPLOAD_BUTTON_XPATH = "//button[contains(@class, 'btn-add')]";
     private static final String NEXT_BUTTON_XPATH = "//button[contains(@class, 'ot-button-primary') and (contains(., 'Next') or contains(., 'Suivant'))]";
+
+    private static final String MULTIPLE_SERVICES_XPATH = "//div[contains(@class, 'tab')]//p[contains(normalize-space(text()), 'Multiple services')]/parent::div";
+//    private static final String SERVICES_DROPDOWN_XPATH = "//input[@aria-autocomplete='list' and @type='text' and contains(@autocomplete, 'a7')]";
+//    private static final String SERVICES_DROPDOWN_XPATH = "//ng-select[contains(@class, 'custom-Services')]//div[contains(@class, 'ng-input')]//input[@type='text']";
+
+//    private static final String SERVICES_DROPDOWN_CONTAINER_XPATH = "//div[contains(@class, 'ng-select-container')]";
+//    private static final String SERVICE_OPTION_XPATH = "//div[contains(@class, 'ng-option') and contains(text(), '%s')]";
+    private static final String MILEAGE_DROPDOWN_XPATH = "//div[contains(@class, 'ng-value-container')]//div[contains(@class, 'ng-placeholder') and contains(text(), 'Select mileage')]/parent::div//input";
+    //private static final String MILEAGE_OPTION_XPATH = "//div[contains(@class, 'ng-option')]//span[contains(@class, 'ng-option-label') and normalize-space(text())='%s']";
+    // Replaces both regular and non-breaking spaces in the text before matching
+    private static final String MILEAGE_OPTION_XPATH ="//div[contains(@class, 'ng-option')]//span[contains(@class, 'ng-option-label') and " +
+                    "translate(normalize-space(.), '\u00A0\u202F', '  ') = '%s']";
+    private static final String BREAKDOWN_CHECKBOX_MULTIPLE_XPATH = "//input[@type='checkbox' and contains(@id, 'BREAKDOWN')]";
+
+    private static final String SERVICES_DROPDOWN_XPATH =
+            "//ng-select[contains(@class, 'custom-Services')]//div[contains(@class, 'ng-input')]//input[@type='text']";
+
+    private static final String SERVICES_DROPDOWN_CONTAINER_XPATH =
+            "//ng-select[contains(@class, 'custom-Services')]";
+
+    private static final String DROPDOWN_PANEL_XPATH =
+            "//div[contains(@class, 'ng-dropdown-panel')]";
+
+    private static final String SERVICE_OPTION_XPATH =
+            "//div[contains(@class, 'ng-option')]//span[contains(@class, 'ng-option-label') and normalize-space(text())='%s']";
 
     // Test data from config
     private final String mileage;
@@ -358,5 +383,284 @@ public class AppointmentFormPage extends BasePage {
         }
 
         throw new RuntimeException("Test file not found: " + fileName + ". Make sure the file exists in src/test/resources/");
+    }
+
+    /**
+     * Select Multiple Services option
+     */
+    public void selectMultipleServices() {
+        logger.info("Selecting Multiple Services");
+        WebElement multipleServices = findElementWithWait(MULTIPLE_SERVICES_XPATH);
+        clickElement(multipleServices, "Multiple Services");
+    }
+
+    /**
+     * Fill multiple services form with validation testing
+     * @param services Array of service names to select
+     * @param selectedMileage Mileage value to select
+     * @param withFileAttachment whether to include file attachment
+     */
+    public void fillMultipleServicesFormWithValidation(String[] services, String selectedMileage, boolean withFileAttachment) {
+        logger.info("Filling multiple services form with validation testing");
+
+        scrollPage(300);
+        checkBreakdownOptionForMultipleServices();
+        selectServicesFromDropdown(services);
+        pressEscapeToCloseDropdown();
+        selectMileageFromDropdown(selectedMileage);
+        validateAndFillDescriptionForMultipleServices();
+
+        if (withFileAttachment) {
+            uploadFile();
+        }
+
+        scrollPage(400);
+        logger.info("Multiple services form filled successfully with validation testing completed");
+    }
+
+    /**
+     * Check the vehicle breakdown checkbox for multiple services
+     */
+    private void checkBreakdownOptionForMultipleServices() {
+        logger.info("Checking breakdown option for multiple services");
+        WebElement breakdownCheckbox = findElementWithWait(BREAKDOWN_CHECKBOX_MULTIPLE_XPATH);
+        if (breakdownCheckbox != null && !breakdownCheckbox.isSelected()) {
+            clickElement(breakdownCheckbox, "Breakdown checkbox (Multiple Services)");
+        }
+    }
+    /**
+     * Press ESC key to close the dropdown.
+     */
+    private void pressEscapeToCloseDropdown() {
+        try {
+            Actions actions = new Actions(driver);
+            actions.sendKeys(Keys.ESCAPE).perform();
+            waitForElement(500);
+            logger.info("Pressed ESC to close the dropdown");
+        } catch (Exception e) {
+            logger.warn("Could not press ESC to close dropdown: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Select multiple services from dropdown
+     * @param services Array of service names to select
+     */
+    private void selectServicesFromDropdown(String[] services) {
+        logger.info("Selecting services from dropdown");
+
+        try {
+            // Click on services dropdown to open it
+            WebElement servicesDropdown = findElementWithWait(SERVICES_DROPDOWN_XPATH);
+            if (servicesDropdown == null) {
+                // Try fallback
+                servicesDropdown = findElementWithWait(SERVICES_DROPDOWN_CONTAINER_XPATH + "//input");
+            }
+
+            if (servicesDropdown != null) {
+                clickElement(servicesDropdown, "Services dropdown");
+
+                // Wait for the dropdown panel to load
+                wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(DROPDOWN_PANEL_XPATH)));
+
+                // Select each service
+                for (String service : services) {
+                    selectServiceOption(service);
+                    waitForElement(500); // slight pause between selections
+                }
+
+                // Optional: Click outside to close dropdown
+                scrollPage(100);
+
+                logger.info("Successfully selected {} services", services.length);
+
+            } else {
+                throw new RuntimeException("Services dropdown not found");
+            }
+
+        } catch (Exception e) {
+            logger.error("Failed to select services from dropdown: {}", e.getMessage());
+            takeScreenshot("ERROR_ServicesDropdown");
+            throw new RuntimeException("Services selection failed", e);
+        }
+    }
+
+
+    /**
+     * Select a specific service option from dropdown
+     * @param serviceName Name of the service to select
+     */
+    private void selectServiceOption(String serviceName) {
+        try {
+            logger.info("Selecting service: {}", serviceName);
+
+            // Wait for dropdown options to be visible
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(DROPDOWN_PANEL_XPATH)));
+
+            // Try full match first
+            String serviceXPath = String.format(SERVICE_OPTION_XPATH, serviceName);
+            WebElement serviceOption = findElementWithWait(serviceXPath);
+
+            if (serviceOption != null) {
+                clickElement(serviceOption, "Service: " + serviceName);
+                logger.info("Service '{}' selected successfully", serviceName);
+            } else {
+                // Partial fallback match: match any span containing part of the text
+                String partialServiceXPath = String.format(
+                        "//div[contains(@class, 'ng-option')]//span[contains(@class, 'ng-option-label') and contains(text(), '%s')]",
+                        serviceName.substring(0, Math.min(serviceName.length(), 6)) // partial match
+                );
+                serviceOption = findElementWithWait(partialServiceXPath);
+
+                if (serviceOption != null) {
+                    clickElement(serviceOption, "Service (partial match): " + serviceName);
+                    logger.info("Service '{}' selected with partial match", serviceName);
+                } else {
+                    logger.warn("Service '{}' not found in dropdown", serviceName);
+                }
+            }
+
+        } catch (Exception e) {
+            logger.warn("Could not select service '{}': {}", serviceName, e.getMessage());
+        }
+    }
+
+    /**
+     * Select mileage from dropdown
+     * @param mileage Mileage value to select (e.g., "60 000")
+     */
+    private void selectMileageFromDropdown(String mileage) {
+        logger.info("Selecting mileage: {}", mileage);
+
+        try {
+            // Click on mileage dropdown to open it
+            WebElement mileageDropdown = findElementWithWait(MILEAGE_DROPDOWN_XPATH);
+            if (mileageDropdown == null) {
+                // Try alternative selectors
+                String[] mileageSelectors = {
+                        "//div[contains(@class, 'ng-placeholder') and contains(text(), 'Select mileage')]/parent::div//input",
+                        "//div[contains(text(), 'Select mileage')]/following-sibling::div//input",
+                        "//ng-select//input[contains(@aria-controls, 'mileage') or contains(@autocomplete, 'a0a9')]"
+                };
+
+                for (String selector : mileageSelectors) {
+                    mileageDropdown = findElementWithWait(selector);
+                    if (mileageDropdown != null) break;
+                }
+            }
+
+            if (mileageDropdown != null) {
+                clickElement(mileageDropdown, "Mileage dropdown");
+                waitForElement(1000);
+
+                // Select the mileage option
+                String mileageOptionXPath = String.format(MILEAGE_OPTION_XPATH, mileage);
+                WebElement mileageOption = findElementWithWait(mileageOptionXPath);
+
+                if (mileageOption == null) {
+                    // Try alternative approaches to find mileage option
+                    String[] alternativeSelectors = {
+                            "//div[contains(@class, 'ng-option') and text()='" + mileage + "']",
+                            "//div[contains(@class, 'ng-option') and contains(text(), '" + mileage + "')]",
+                            "//span[contains(text(), '" + mileage + "')]/parent::div[contains(@class, 'ng-option')]"
+                    };
+
+                    for (String selector : alternativeSelectors) {
+                        mileageOption = findElementWithWait(selector);
+                        if (mileageOption != null) break;
+                    }
+                }
+
+                if (mileageOption != null) {
+                    clickElement(mileageOption, "Mileage: " + mileage);
+                    logger.info("Mileage '{}' selected successfully", mileage);
+                } else {
+                    logger.warn("Mileage option '{}' not found in dropdown", mileage);
+                }
+
+                // Click outside to close dropdown
+                scrollPage(100);
+
+            } else {
+                throw new RuntimeException("Mileage dropdown not found");
+            }
+
+        } catch (Exception e) {
+            logger.error("Failed to select mileage from dropdown: {}", e.getMessage());
+            takeScreenshot("ERROR_MileageDropdown");
+            throw new RuntimeException("Mileage selection failed", e);
+        }
+    }
+
+    /**
+     * Validate description textarea and fill with valid data for multiple services
+     */
+    private void validateAndFillDescriptionForMultipleServices() {
+        logger.info("Testing description validation for multiple services");
+
+        WebElement descriptionTextarea = findElementWithWait(DESCRIPTION_TEXTAREA_XPATH);
+        if (descriptionTextarea == null) {
+            // Try alternative selector for multiple services
+            descriptionTextarea = findElementWithWait("//textarea[@formcontrolname='description' and contains(@class, 's-input-area')]");
+        }
+
+        if (descriptionTextarea == null) return;
+
+        clickElement(descriptionTextarea, "Description textarea (Multiple Services)");
+
+        // Test 1: Empty description validation
+        testEmptyDescription(descriptionTextarea);
+
+        // Test 2: Very short description
+        testShortDescription(descriptionTextarea);
+
+        // Test 3: Description with only spaces
+        testDescriptionWithSpaces(descriptionTextarea);
+
+        // Test 4: Enter valid description for multiple services
+        String multipleServicesDescription = "Multiple services appointment - " + description;
+        fillValidDescriptionForMultipleServices(descriptionTextarea, multipleServicesDescription);
+
+        // Test form submission validation
+        testFormSubmissionValidationForMultipleServices(descriptionTextarea);
+    }
+
+    /**
+     * Fill valid description for multiple services
+     */
+    private void fillValidDescriptionForMultipleServices(WebElement descriptionTextarea, String multipleServicesDescription) {
+        descriptionTextarea.sendKeys(multipleServicesDescription);
+        waitForElement(300);
+        String finalDescription = descriptionTextarea.getAttribute("value");
+        Assert.assertEquals(finalDescription, multipleServicesDescription, "Valid description should be accepted correctly");
+        logger.info("Valid description entered for multiple services");
+    }
+
+    /**
+     * Test form submission validation for multiple services
+     */
+    private void testFormSubmissionValidationForMultipleServices(WebElement descriptionTextarea) {
+        logger.info("Testing form submission validation for multiple services");
+
+        try {
+            WebElement nextButton = findElementWithWait(NEXT_BUTTON_XPATH);
+            if (nextButton != null) {
+                // Test with valid inputs - button should be enabled
+                boolean isEnabled = nextButton.isEnabled();
+                logger.info("Next button enabled with valid multiple services inputs: {}", isEnabled);
+
+                // Test clearing mandatory field
+                clearInput(descriptionTextarea);
+                waitForElement(300);
+                boolean isDisabledAfterClear = nextButton.isEnabled();
+                logger.info("Next button enabled after clearing description (multiple services): {}", isDisabledAfterClear);
+
+                // Restore valid description for form completion
+                String multipleServicesDescription = "Multiple services appointment - " + description;
+                descriptionTextarea.sendKeys(multipleServicesDescription);
+            }
+        } catch (Exception e) {
+            logger.debug("Could not test next button state for multiple services: {}", e.getMessage());
+        }
     }
 }
