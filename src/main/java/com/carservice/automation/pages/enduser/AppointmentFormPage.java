@@ -1,11 +1,14 @@
 package com.carservice.automation.pages.enduser;
 
 import com.carservice.automation.base.BasePage;
+import com.carservice.automation.utils.TestImageCreator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
 import java.io.File;
@@ -60,7 +63,7 @@ public class AppointmentFormPage extends BasePage {
         validateAndFillDescription();
 
         if (withFileAttachment) {
-            uploadFile();
+            uploadFile(testFilePath);
         }
 
         scrollPage(400);
@@ -268,49 +271,105 @@ public class AppointmentFormPage extends BasePage {
     /**
      * Upload file attachment
      */
-    private void uploadFile() {
-        logger.info("Starting file upload");
+    protected void uploadFile(String filePath) {
+        logger.info("🔧 Starting file upload process for: {}", filePath);
 
         try {
-            File testFile = new File(testFilePath);
-            if (!testFile.exists()) {
-                throw new RuntimeException("Test file does not exist: " + testFilePath);
-            }
-
-            String absolutePath = testFile.getAbsolutePath();
-            logger.info("Uploading file: {}", absolutePath);
-
-            WebElement fileInput = findElementWithWait(FILE_INPUT_XPATH);
-
-            if (fileInput == null) {
-                WebElement uploadButton = findElementWithWait(UPLOAD_BUTTON_XPATH);
-                if (uploadButton != null) {
-                    clickElement(uploadButton, "Upload button");
-                    waitForElement(1000);
-                    fileInput = findElementWithWait(FILE_INPUT_XPATH);
-                }
-            }
-
-            if (fileInput != null) {
-                JavascriptExecutor js = (JavascriptExecutor) driver;
-                js.executeScript("arguments[0].style.display = 'block'; arguments[0].style.visibility = 'visible';", fileInput);
-
-                fileInput.sendKeys(absolutePath);
-                logger.info("File uploaded successfully using sendKeys");
-                waitForElement(2000);
-
-                String inputValue = fileInput.getAttribute("value");
-                if (inputValue != null && !inputValue.isEmpty()) {
-                    logger.info("File upload verified");
-                }
+            // Get the correct file path using the utility
+            String actualFilePath;
+            if (filePath.startsWith("src/test/resources/")) {
+                // Extract just the filename
+                String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+                actualFilePath = TestImageCreator.getTestImagePath(fileName);
             } else {
-                throw new RuntimeException("Could not find file input element");
+                actualFilePath = TestImageCreator.getTestImagePath(filePath);
+            }
+
+            // Verify file exists
+            File testFile = new File(actualFilePath);
+            if (!testFile.exists()) {
+                throw new RuntimeException("Test file does not exist: " + actualFilePath);
+            }
+
+            if (!testFile.canRead()) {
+                throw new RuntimeException("Test file is not readable: " + actualFilePath);
+            }
+
+            logger.info("✅ File verified: {} ({} bytes)", actualFilePath, testFile.length());
+
+            // Find file upload input element
+            String[] uploadSelectors = {
+                    "//input[@type='file']",
+                    "//input[@accept='image/*']",
+                    "//*[@class='file-upload']//input",
+                    "//div[contains(@class, 'upload')]//input[@type='file']"
+            };
+
+            WebElement fileInput = findElementWithMultipleSelectors(uploadSelectors, "File Upload Input");
+
+            // Make the file input visible if it's hidden
+            jsExecutor.executeScript(
+                    "arguments[0].style.display = 'block';" +
+                            "arguments[0].style.visibility = 'visible';" +
+                            "arguments[0].style.opacity = '1';" +
+                            "arguments[0].style.height = 'auto';" +
+                            "arguments[0].style.width = 'auto';",
+                    fileInput
+            );
+
+            // Upload the file
+            logger.info("📤 Uploading file: {}", actualFilePath);
+            fileInput.sendKeys(actualFilePath);
+
+            // Wait for upload to process
+            waitForElement(2000);
+
+            // Verify upload success (optional - depends on your UI)
+            verifyFileUploadSuccess(testFile.getName());
+
+            logger.info("✅ File upload completed successfully");
+
+        } catch (Exception e) {
+            logger.error("❌ File upload failed: {}", e.getMessage());
+            takeScreenshot("file_upload_error");
+            throw new RuntimeException("File upload failed", e);
+        }
+    }
+    /**
+     * Verify file upload was successful (adjust selectors based on your UI)
+     */
+    private void verifyFileUploadSuccess(String fileName) {
+        try {
+            // Common patterns for upload success indicators
+            String[] successSelectors = {
+                    "//div[contains(@class, 'upload-success')]",
+                    "//span[contains(@class, 'file-name')]",
+                    "//div[contains(text(), '" + fileName + "')]",
+                    "//*[contains(@class, 'uploaded-file')]",
+                    "//i[contains(@class, 'success')] | //i[contains(@class, 'check')]"
+            };
+
+            boolean uploadSuccessFound = false;
+            for (String selector : successSelectors) {
+                try {
+                    WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(selector)));
+                    if (element.isDisplayed()) {
+                        logger.info("✅ Upload success indicator found: {}", selector);
+                        uploadSuccessFound = true;
+                        break;
+                    }
+                } catch (Exception e) {
+                    // Continue to next selector
+                }
+            }
+
+            if (!uploadSuccessFound) {
+                logger.warn("⚠️ No upload success indicator found, but no error thrown");
             }
 
         } catch (Exception e) {
-            logger.error("File upload failed: {}", e.getMessage());
-            takeScreenshot("ERROR_FileUpload");
-            throw new RuntimeException("File upload failed", e);
+            logger.warn("⚠️ Could not verify upload success: {}", e.getMessage());
+            // Don't throw exception here as upload might still be successful
         }
     }
 }
