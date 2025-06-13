@@ -77,7 +77,6 @@ allure-results/
 allure-report/
 extent-reports/
 screenshots/
-*.png
 *.jpg
 *.gif
 

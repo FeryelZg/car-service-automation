@@ -1,14 +1,11 @@
 package com.carservice.automation.pages.enduser;
 
 import com.carservice.automation.base.BasePage;
-import com.carservice.automation.utils.TestImageCreator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
 import java.io.File;
@@ -63,7 +60,7 @@ public class AppointmentFormPage extends BasePage {
         validateAndFillDescription();
 
         if (withFileAttachment) {
-            uploadFile(testFilePath);
+            uploadFile();
         }
 
         scrollPage(400);
@@ -271,105 +268,95 @@ public class AppointmentFormPage extends BasePage {
     /**
      * Upload file attachment
      */
-    protected void uploadFile(String filePath) {
-        logger.info("🔧 Starting file upload process for: {}", filePath);
+    private void uploadFile() {
+        logger.info("Starting file upload");
 
         try {
-            // Get the correct file path using the utility
-            String actualFilePath;
-            if (filePath.startsWith("src/test/resources/")) {
-                // Extract just the filename
-                String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
-                actualFilePath = TestImageCreator.getTestImagePath(fileName);
-            } else {
-                actualFilePath = TestImageCreator.getTestImagePath(filePath);
-            }
-
-            // Verify file exists
+            // Get the actual file path from repository
+            String actualFilePath = getRepositoryFilePath(testFilePath);
             File testFile = new File(actualFilePath);
+
             if (!testFile.exists()) {
                 throw new RuntimeException("Test file does not exist: " + actualFilePath);
             }
 
-            if (!testFile.canRead()) {
-                throw new RuntimeException("Test file is not readable: " + actualFilePath);
-            }
+            String absolutePath = testFile.getAbsolutePath();
+            logger.info("Uploading file: {}", absolutePath);
 
-            logger.info("✅ File verified: {} ({} bytes)", actualFilePath, testFile.length());
+            WebElement fileInput = findElementWithWait(FILE_INPUT_XPATH);
 
-            // Find file upload input element
-            String[] uploadSelectors = {
-                    "//input[@type='file']",
-                    "//input[@accept='image/*']",
-                    "//*[@class='file-upload']//input",
-                    "//div[contains(@class, 'upload')]//input[@type='file']"
-            };
-
-            WebElement fileInput = findElementWithMultipleSelectors(uploadSelectors, "File Upload Input");
-
-            // Make the file input visible if it's hidden
-            jsExecutor.executeScript(
-                    "arguments[0].style.display = 'block';" +
-                            "arguments[0].style.visibility = 'visible';" +
-                            "arguments[0].style.opacity = '1';" +
-                            "arguments[0].style.height = 'auto';" +
-                            "arguments[0].style.width = 'auto';",
-                    fileInput
-            );
-
-            // Upload the file
-            logger.info("📤 Uploading file: {}", actualFilePath);
-            fileInput.sendKeys(actualFilePath);
-
-            // Wait for upload to process
-            waitForElement(2000);
-
-            // Verify upload success (optional - depends on your UI)
-            verifyFileUploadSuccess(testFile.getName());
-
-            logger.info("✅ File upload completed successfully");
-
-        } catch (Exception e) {
-            logger.error("❌ File upload failed: {}", e.getMessage());
-            takeScreenshot("file_upload_error");
-            throw new RuntimeException("File upload failed", e);
-        }
-    }
-    /**
-     * Verify file upload was successful (adjust selectors based on your UI)
-     */
-    private void verifyFileUploadSuccess(String fileName) {
-        try {
-            // Common patterns for upload success indicators
-            String[] successSelectors = {
-                    "//div[contains(@class, 'upload-success')]",
-                    "//span[contains(@class, 'file-name')]",
-                    "//div[contains(text(), '" + fileName + "')]",
-                    "//*[contains(@class, 'uploaded-file')]",
-                    "//i[contains(@class, 'success')] | //i[contains(@class, 'check')]"
-            };
-
-            boolean uploadSuccessFound = false;
-            for (String selector : successSelectors) {
-                try {
-                    WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(selector)));
-                    if (element.isDisplayed()) {
-                        logger.info("✅ Upload success indicator found: {}", selector);
-                        uploadSuccessFound = true;
-                        break;
-                    }
-                } catch (Exception e) {
-                    // Continue to next selector
+            if (fileInput == null) {
+                WebElement uploadButton = findElementWithWait(UPLOAD_BUTTON_XPATH);
+                if (uploadButton != null) {
+                    clickElement(uploadButton, "Upload button");
+                    waitForElement(1000);
+                    fileInput = findElementWithWait(FILE_INPUT_XPATH);
                 }
             }
 
-            if (!uploadSuccessFound) {
-                logger.warn("⚠️ No upload success indicator found, but no error thrown");
+            if (fileInput != null) {
+                JavascriptExecutor js = (JavascriptExecutor) driver;
+                js.executeScript("arguments[0].style.display = 'block'; arguments[0].style.visibility = 'visible';", fileInput);
+
+                fileInput.sendKeys(absolutePath);
+                logger.info("File uploaded successfully using sendKeys");
+                waitForElement(2000);
+
+                String inputValue = fileInput.getAttribute("value");
+                if (inputValue != null && !inputValue.isEmpty()) {
+                    logger.info("File upload verified");
+                }
+            } else {
+                throw new RuntimeException("Could not find file input element");
             }
 
         } catch (Exception e) {
-            logger.warn("⚠️ Could not verify upload success: {}", e.getMessage());
-            // Don't throw exception here as upload might still be successful
+            logger.error("File upload failed: {}", e.getMessage());
+            takeScreenshot("ERROR_FileUpload");
+            throw new RuntimeException("File upload failed", e);
         }
+    }
+
+    /**
+     * Get the actual file path from repository - works in both local and CI environments
+     */
+    private String getRepositoryFilePath(String configFilePath) {
+        // Extract filename from config path
+        String fileName = configFilePath;
+        if (configFilePath.contains("/")) {
+            fileName = configFilePath.substring(configFilePath.lastIndexOf("/") + 1);
+        }
+
+        logger.info("Looking for file: {}", fileName);
+
+        // Try different locations where the file might exist
+        String[] possiblePaths = {
+                // Repository file locations (works in both local and CI)
+                System.getProperty("user.dir") + "/src/test/resources/" + fileName,
+                "src/test/resources/" + fileName,
+
+                // Maven compiled resources
+                System.getProperty("user.dir") + "/target/test-classes/" + fileName,
+                "target/test-classes/" + fileName,
+
+                // Original path as-is (fallback)
+                configFilePath
+        };
+
+        for (String path : possiblePaths) {
+            File file = new File(path);
+            if (file.exists() && file.canRead()) {
+                logger.info("✅ Found file at: {}", file.getAbsolutePath());
+                return file.getAbsolutePath();
+            }
+        }
+
+        // If not found, log all attempted paths for debugging
+        logger.error("❌ File '{}' not found in any location. Tried:", fileName);
+        for (String path : possiblePaths) {
+            logger.error("   - {}", path);
+        }
+
+        throw new RuntimeException("Test file not found: " + fileName + ". Make sure the file exists in src/test/resources/");
     }
 }
