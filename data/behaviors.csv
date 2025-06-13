@@ -1,0 +1,5 @@
+"Epic","Feature","Story","FAILED","BROKEN","PASSED","SKIPPED","UNKNOWN"
+"Backoffice Management","Intervention Scheduling","Calendar Constraints","0","0","1","0","0"
+"Vehicle Appointment Booking","End-to-End Diagnostic Service Appointment Flow","Complete Appointment Flow with All Scenarios","0","1","0","0","0"
+"Backoffice Management","Intervention Scheduling","Calendar Scheduling","0","0","1","0","0"
+"Backoffice Management","Intervention Scheduling","Drag and Drop","0","0","1","0","0"
