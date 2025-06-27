@@ -1,45 +1,45 @@
 "Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
-"broken","Thu Jun 26 03:49:23 UTC 2025","Thu Jun 26 03:52:04 UTC 2025","160899","","Multiple Services Appointment Booking","","Test different mileage selections","","Test different mileage selections","  As a vehicle owner
+"passed","Fri Jun 27 03:31:49 UTC 2025","Fri Jun 27 03:34:35 UTC 2025","166290","","Vehicle Appointment Booking","","Complete appointment booking with validation","","Complete appointment booking with validation","  As a vehicle owner
+  I want to book a diagnostic service appointment
+  So that I can get my vehicle serviced at an authorized repairer"
+"passed","Fri Jun 27 03:35:04 UTC 2025","Fri Jun 27 03:37:46 UTC 2025","162118","","Vehicle Appointment Booking","","Appointment booking without file upload","","Appointment booking without file upload","  As a vehicle owner
+  I want to book a diagnostic service appointment
+  So that I can get my vehicle serviced at an authorized repairer"
+"passed","Fri Jun 27 03:26:57 UTC 2025","Fri Jun 27 03:28:57 UTC 2025","120041","AutoTeam E2E Test Suite","AutoTeam Tests","com.carservice.automation.tests.backoffice.InterventionSchedulingTest","com.carservice.automation.tests.backoffice.InterventionSchedulingTest","shouldPerformDragAndDropSuccessfully","Test intervention drag and drop functionality","Test the drag and drop mechanism for intervention scheduling"
+"broken","Fri Jun 27 04:00:08 UTC 2025","Fri Jun 27 04:00:08 UTC 2025","1","AutoTeam E2E Test Suite","E2E Flow Tests","com.carservice.automation.tests.backoffice.InterventionSchedulingTest","com.carservice.automation.tests.backoffice.InterventionSchedulingTest","shouldScheduleInterventionInCalendar","Schedule intervention in calendar by drag and drop","Test the complete flow of scheduling an intervention request in the calendar by dragging and dropping to an available time slot"
+"broken","Fri Jun 27 03:57:28 UTC 2025","Fri Jun 27 04:00:08 UTC 2025","159802","","Multiple Services Appointment Booking","","Test different mileage selections","","Test different mileage selections","  As a vehicle owner
   I want to book multiple services appointment
   So that I can get multiple services done at once at an authorized repairer"
-"broken","Thu Jun 26 03:58:08 UTC 2025","Thu Jun 26 03:58:08 UTC 2025","2","AutoTeam E2E Test Suite","E2E Flow Tests","com.carservice.automation.tests.backoffice.InterventionSchedulingTest","com.carservice.automation.tests.backoffice.InterventionSchedulingTest","shouldScheduleInterventionInCalendar","Schedule intervention in calendar by drag and drop","Test the complete flow of scheduling an intervention request in the calendar by dragging and dropping to an available time slot"
-"broken","Thu Jun 26 03:58:08 UTC 2025","Thu Jun 26 03:58:08 UTC 2025","4","AutoTeam E2E Test Suite","Multiple Services Tests","com.carservice.automation.tests.enduser.BookAppointmentTest","com.carservice.automation.tests.enduser.BookAppointmentTest","testCompleteMultipleServicesAppointmentFlow","testCompleteMultipleServicesAppointmentFlow","Validates complete appointment booking flow for multiple services with dropdown selections"
-"passed","Thu Jun 26 03:44:50 UTC 2025","Thu Jun 26 03:47:37 UTC 2025","166918","","Multiple Services Appointment Booking","","Multiple services appointment without file upload","","Multiple services appointment without file upload","  As a vehicle owner
+"passed","Fri Jun 27 03:28:57 UTC 2025","Fri Jun 27 03:29:33 UTC 2025","35514","AutoTeam E2E Test Suite","AutoTeam Tests","com.carservice.automation.tests.backoffice.InterventionSchedulingTest","com.carservice.automation.tests.backoffice.InterventionSchedulingTest","shouldRespectSchedulingConstraints","Verify intervention scheduling constraints","Test that intervention scheduling respects working hours, weekdays, and availability constraints"
+"passed","Fri Jun 27 03:46:57 UTC 2025","Fri Jun 27 03:49:42 UTC 2025","165693","","Multiple Services Appointment Booking","","Multiple services appointment without file upload","","Multiple services appointment without file upload","  As a vehicle owner
   I want to book multiple services appointment
   So that I can get multiple services done at once at an authorized repairer"
-"broken","Thu Jun 26 03:47:37 UTC 2025","Thu Jun 26 03:49:23 UTC 2025","106625","","Multiple Services Appointment Booking","","Test different service combinations","","Test different service combinations","  As a vehicle owner
-  I want to book multiple services appointment
-  So that I can get multiple services done at once at an authorized repairer"
-"broken","Thu Jun 26 03:58:08 UTC 2025","Thu Jun 26 03:58:08 UTC 2025","6","AutoTeam E2E Test Suite","E2E Flow Tests","com.carservice.automation.tests.enduser.BookAppointmentTest","com.carservice.automation.tests.enduser.BookAppointmentTest","testCompleteAppointmentFlow_AllScenarios","testCompleteAppointmentFlow_AllScenarios","Validates complete appointment booking flow with and without file upload"
-"passed","Thu Jun 26 03:27:47 UTC 2025","Thu Jun 26 03:28:39 UTC 2025","51690","","Intervention Scheduling in Backoffice","","View and filter intervention requests","","View and filter intervention requests","  As a backoffice administrator
+"passed","Fri Jun 27 03:34:35 UTC 2025","Fri Jun 27 03:35:04 UTC 2025","28523","","Vehicle Appointment Booking","","Vehicle identification form validation","","Vehicle identification form validation","  As a vehicle owner
+  I want to book a diagnostic service appointment
+  So that I can get my vehicle serviced at an authorized repairer"
+"failed","Fri Jun 27 03:30:52 UTC 2025","Fri Jun 27 03:31:49 UTC 2025","56947","","Intervention Scheduling in Backoffice","","Schedule intervention in calendar","","Schedule intervention in calendar","  As a backoffice administrator
   I want to schedule intervention requests in the calendar
   So that customer appointments can be properly managed"
-"broken","Thu Jun 26 03:52:04 UTC 2025","Thu Jun 26 03:53:46 UTC 2025","101287","","Multiple Services Appointment Booking","","Test different mileage selections","","Test different mileage selections","  As a vehicle owner
+"broken","Fri Jun 27 04:00:08 UTC 2025","Fri Jun 27 04:00:08 UTC 2025","5","AutoTeam E2E Test Suite","E2E Flow Tests","com.carservice.automation.tests.enduser.BookAppointmentTest","com.carservice.automation.tests.enduser.BookAppointmentTest","testCompleteAppointmentFlow_AllScenarios","testCompleteAppointmentFlow_AllScenarios","Validates complete appointment booking flow with and without file upload"
+"broken","Fri Jun 27 03:51:28 UTC 2025","Fri Jun 27 03:54:08 UTC 2025","159854","","Multiple Services Appointment Booking","","Test different mileage selections","","Test different mileage selections","  As a vehicle owner
   I want to book multiple services appointment
   So that I can get multiple services done at once at an authorized repairer"
-"broken","Thu Jun 26 03:38:27 UTC 2025","Thu Jun 26 03:44:50 UTC 2025","382798","","Multiple Services Appointment Booking","","Multiple services form validation and dropdown testing","","Multiple services form validation and dropdown testing","  As a vehicle owner
+"passed","Fri Jun 27 03:37:46 UTC 2025","Fri Jun 27 03:40:35 UTC 2025","169102","","Multiple Services Appointment Booking","","Complete multiple services appointment booking","","Complete multiple services appointment booking","  As a vehicle owner
   I want to book multiple services appointment
   So that I can get multiple services done at once at an authorized repairer"
-"passed","Thu Jun 26 03:32:53 UTC 2025","Thu Jun 26 03:35:37 UTC 2025","163335","","Vehicle Appointment Booking","","Appointment booking without file upload","","Appointment booking without file upload","  As a vehicle owner
-  I want to book a diagnostic service appointment
-  So that I can get my vehicle serviced at an authorized repairer"
-"passed","Thu Jun 26 03:35:37 UTC 2025","Thu Jun 26 03:38:27 UTC 2025","170207","","Multiple Services Appointment Booking","","Complete multiple services appointment booking","","Complete multiple services appointment booking","  As a vehicle owner
+"broken","Fri Jun 27 03:54:08 UTC 2025","Fri Jun 27 03:55:48 UTC 2025","100190","","Multiple Services Appointment Booking","","Test different mileage selections","","Test different mileage selections","  As a vehicle owner
   I want to book multiple services appointment
   So that I can get multiple services done at once at an authorized repairer"
-"passed","Thu Jun 26 03:29:36 UTC 2025","Thu Jun 26 03:32:24 UTC 2025","167369","","Vehicle Appointment Booking","","Complete appointment booking with validation","","Complete appointment booking with validation","  As a vehicle owner
-  I want to book a diagnostic service appointment
-  So that I can get my vehicle serviced at an authorized repairer"
-"passed","Thu Jun 26 03:32:24 UTC 2025","Thu Jun 26 03:32:53 UTC 2025","29763","","Vehicle Appointment Booking","","Vehicle identification form validation","","Vehicle identification form validation","  As a vehicle owner
-  I want to book a diagnostic service appointment
-  So that I can get my vehicle serviced at an authorized repairer"
-"broken","Thu Jun 26 03:53:46 UTC 2025","Thu Jun 26 03:55:27 UTC 2025","101156","","Multiple Services Appointment Booking","","Test different mileage selections","","Test different mileage selections","  As a vehicle owner
+"broken","Fri Jun 27 03:40:35 UTC 2025","Fri Jun 27 03:46:57 UTC 2025","381596","","Multiple Services Appointment Booking","","Multiple services form validation and dropdown testing","","Multiple services form validation and dropdown testing","  As a vehicle owner
   I want to book multiple services appointment
   So that I can get multiple services done at once at an authorized repairer"
-"failed","Thu Jun 26 03:28:39 UTC 2025","Thu Jun 26 03:29:36 UTC 2025","57743","","Intervention Scheduling in Backoffice","","Schedule intervention in calendar","","Schedule intervention in calendar","  As a backoffice administrator
+"broken","Fri Jun 27 03:55:48 UTC 2025","Fri Jun 27 03:57:28 UTC 2025","100088","","Multiple Services Appointment Booking","","Test different mileage selections","","Test different mileage selections","  As a vehicle owner
+  I want to book multiple services appointment
+  So that I can get multiple services done at once at an authorized repairer"
+"passed","Fri Jun 27 03:30:02 UTC 2025","Fri Jun 27 03:30:52 UTC 2025","50520","","Intervention Scheduling in Backoffice","","View and filter intervention requests","","View and filter intervention requests","  As a backoffice administrator
   I want to schedule intervention requests in the calendar
   So that customer appointments can be properly managed"
-"broken","Thu Jun 26 03:55:27 UTC 2025","Thu Jun 26 03:58:08 UTC 2025","160960","","Multiple Services Appointment Booking","","Test different mileage selections","","Test different mileage selections","  As a vehicle owner
+"broken","Fri Jun 27 03:49:42 UTC 2025","Fri Jun 27 03:51:28 UTC 2025","105535","","Multiple Services Appointment Booking","","Test different service combinations","","Test different service combinations","  As a vehicle owner
   I want to book multiple services appointment
   So that I can get multiple services done at once at an authorized repairer"
-"passed","Thu Jun 26 03:26:40 UTC 2025","Thu Jun 26 03:27:17 UTC 2025","36817","AutoTeam E2E Test Suite","AutoTeam Tests","com.carservice.automation.tests.backoffice.InterventionSchedulingTest","com.carservice.automation.tests.backoffice.InterventionSchedulingTest","shouldRespectSchedulingConstraints","Verify intervention scheduling constraints","Test that intervention scheduling respects working hours, weekdays, and availability constraints"
-"passed","Thu Jun 26 03:24:39 UTC 2025","Thu Jun 26 03:26:40 UTC 2025","120933","AutoTeam E2E Test Suite","AutoTeam Tests","com.carservice.automation.tests.backoffice.InterventionSchedulingTest","com.carservice.automation.tests.backoffice.InterventionSchedulingTest","shouldPerformDragAndDropSuccessfully","Test intervention drag and drop functionality","Test the drag and drop mechanism for intervention scheduling"
+"broken","Fri Jun 27 04:00:08 UTC 2025","Fri Jun 27 04:00:08 UTC 2025","3","AutoTeam E2E Test Suite","Multiple Services Tests","com.carservice.automation.tests.enduser.BookAppointmentTest","com.carservice.automation.tests.enduser.BookAppointmentTest","testCompleteMultipleServicesAppointmentFlow","testCompleteMultipleServicesAppointmentFlow","Validates complete appointment booking flow for multiple services with dropdown selections"
