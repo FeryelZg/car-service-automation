@@ -225,7 +225,7 @@ public class BookAppointmentTest extends BaseTest {
         AllureUtils.attachScreenshot("Appointment confirmation clicked");
 
         confirmationPage.handlePostConfirmationFlow();
-        AllureUtils.attachScreenshot("Appointment confirmed successfully");
+        AllureUtils.attachScreenshot(" Appointment confirmed successfully");
 
         // Add confirmation details to Allure report
         String confirmationMessage = confirmationPage.getConfirmationMessage();
