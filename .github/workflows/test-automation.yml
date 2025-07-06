@@ -2,9 +2,9 @@ name: Selenium Test Automation with Allure
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, feat/integrateFrontApplication ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, feat/integrateFrontApplication ]
   schedule:
     # Run tests daily at 2 AM UTC
     - cron: '0 2 * * *'
@@ -67,10 +67,10 @@ jobs:
           name: allure-report
           path: target/site/allure-maven-plugin/
           retention-days: 30
-
-      - name: Deploy Allure Report to GitHub Pages
-        if: always() && github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: target/site/allure-maven-plugin
+#
+#      - name: Deploy Allure Report to GitHub Pages
+#        if: always() && github.ref == 'refs/heads/main'
+#        uses: peaceiris/actions-gh-pages@v3
+#        with:
+#          github_token: ${{ secrets.GITHUB_TOKEN }}
+#          publish_dir: target/site/allure-maven-plugin
