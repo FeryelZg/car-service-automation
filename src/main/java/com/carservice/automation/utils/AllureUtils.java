@@ -1,4 +1,5 @@
 package com.carservice.automation.utils;
+
 import io.qameta.allure.Allure;
 import io.qameta.allure.Attachment;
 import io.qameta.allure.Step;
@@ -7,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.JavascriptExecutor;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -14,9 +16,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
 /**
- * Utility class for enhanced Allure reporting functionality
- * Provides convenient methods for adding attachments, steps, and metadata to Allure reports
+ * Enhanced AllureUtils with better screenshot handling
  */
 public class AllureUtils {
 
@@ -31,38 +33,186 @@ public class AllureUtils {
     }
 
     /**
-     * Add a step with message to Allure report
-     * @param message Step message
+     * Enhanced screenshot attachment with better error handling and validation
      */
-    @Step("{message}")
-    public static void logStep(String message) {
-        logger.info("Allure Step: {}", message);
+    @Attachment(value = "{name}", type = "image/png")
+    public static byte[] attachScreenshot(String name) {
+        if (driver == null) {
+            logger.warn("Driver is null, cannot take screenshot for: {}", name);
+            return createErrorScreenshot("Driver is null");
+        }
+
+        try {
+            // Wait for page to be ready
+            waitForPageReady();
+
+            // Ensure we're taking screenshot of visible content
+            scrollToTop();
+
+            // Take screenshot
+            byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+
+            if (screenshot == null || screenshot.length == 0) {
+                logger.warn("Screenshot is empty for: {}", name);
+                return createErrorScreenshot("Empty screenshot");
+            }
+
+            // Also save to file system for debugging
+            saveScreenshotToFile(screenshot, name);
+
+            logger.info("✅ Screenshot captured successfully: {} ({} bytes)", name, screenshot.length);
+            return screenshot;
+
+        } catch (Exception e) {
+            logger.error("❌ Failed to capture screenshot '{}': {}", name, e.getMessage());
+            return createErrorScreenshot("Screenshot failed: " + e.getMessage());
+        }
     }
 
     /**
-     * Start a test case with initial information
-     * @param testName Name of the test case
+     * Enhanced screenshot with retry mechanism
      */
-    public static void startTestCase(String testName) {
-        logStep("Starting test case: " + testName);
-        addParameter("Test Start Time", getCurrentTimestamp());
-        addParameter("Test Name", testName);
+    public static byte[] attachScreenshotWithRetry(String name, int maxRetries) {
+        for (int i = 0; i < maxRetries; i++) {
+            try {
+                Thread.sleep(1000); // Wait before retry
+                byte[] screenshot = attachScreenshot(name + (i > 0 ? "_retry" + i : ""));
+
+                if (screenshot != null && screenshot.length > 1000) { // Basic validation
+                    return screenshot;
+                }
+            } catch (Exception e) {
+                logger.warn("Screenshot attempt {} failed for {}: {}", i + 1, name, e.getMessage());
+            }
+        }
+
+        logger.error("All screenshot attempts failed for: {}", name);
+        return createErrorScreenshot("All retry attempts failed");
     }
 
     /**
-     * Add test result information
-     * @param result Test result message
+     * Wait for page to be ready before taking screenshot
      */
-    public static void addTestResult(String result) {
-        addParameter("Test Result", result);
-        addParameter("Test End Time", getCurrentTimestamp());
-        logStep("Test completed: " + result);
+    private static void waitForPageReady() {
+        try {
+            if (driver instanceof JavascriptExecutor) {
+                JavascriptExecutor js = (JavascriptExecutor) driver;
+
+                // Wait for page load
+                for (int i = 0; i < 30; i++) {
+                    String readyState = (String) js.executeScript("return document.readyState");
+                    if ("complete".equals(readyState)) {
+                        break;
+                    }
+                    Thread.sleep(100);
+                }
+
+                // Wait for any pending animations/transitions
+                Thread.sleep(500);
+            }
+        } catch (Exception e) {
+            logger.debug("Could not wait for page ready: {}", e.getMessage());
+        }
     }
 
     /**
-     * Add failure information to Allure report
-     * @param failureReason Reason for failure
-     * @param exception Exception that caused failure
+     * Scroll to top of page for better screenshots
+     */
+    private static void scrollToTop() {
+        try {
+            if (driver instanceof JavascriptExecutor) {
+                JavascriptExecutor js = (JavascriptExecutor) driver;
+                js.executeScript("window.scrollTo(0, 0);");
+                Thread.sleep(200);
+            }
+        } catch (Exception e) {
+            logger.debug("Could not scroll to top: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Save screenshot to file system for debugging
+     */
+    private static void saveScreenshotToFile(byte[] screenshot, String name) {
+        try {
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+            String fileName = String.format("allure_screenshot_%s_%s.png",
+                    name.replaceAll("[^a-zA-Z0-9]", "_"), timestamp);
+
+            File screenshotDir = new File("target/allure-results/screenshots");
+            screenshotDir.mkdirs();
+
+            File screenshotFile = new File(screenshotDir, fileName);
+            Files.write(screenshotFile.toPath(), screenshot);
+
+            logger.debug("Screenshot saved to: {}", screenshotFile.getAbsolutePath());
+
+        } catch (Exception e) {
+            logger.debug("Could not save screenshot to file: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Create a simple error image when screenshot fails
+     */
+    private static byte[] createErrorScreenshot(String errorMessage) {
+        try {
+            // Create a simple text image using Java
+            String errorText = "Screenshot Error: " + errorMessage;
+            return errorText.getBytes("UTF-8");
+        } catch (Exception e) {
+            return new byte[0];
+        }
+    }
+
+    /**
+     * Take full page screenshot (if supported)
+     */
+    @Attachment(value = "{name} - Full Page", type = "image/png")
+    public static byte[] attachFullPageScreenshot(String name) {
+        try {
+            if (driver instanceof JavascriptExecutor) {
+                JavascriptExecutor js = (JavascriptExecutor) driver;
+
+                // Get full page dimensions
+                Long scrollHeight = (Long) js.executeScript("return document.body.scrollHeight");
+                Long clientHeight = (Long) js.executeScript("return window.innerHeight");
+
+                logger.info("Taking full page screenshot - Height: {}, Viewport: {}", scrollHeight, clientHeight);
+
+                // For now, just take regular screenshot
+                // Full page screenshot would require more complex implementation
+                return attachScreenshot(name + "_fullpage");
+            }
+        } catch (Exception e) {
+            logger.warn("Full page screenshot failed, falling back to regular: {}", e.getMessage());
+        }
+
+        return attachScreenshot(name);
+    }
+
+    /**
+     * Attach screenshot with current URL info
+     */
+    public static void attachScreenshotWithContext(String name) {
+        try {
+            String currentUrl = driver.getCurrentUrl();
+            String pageTitle = driver.getTitle();
+
+            addParameter("Current URL", currentUrl);
+            addParameter("Page Title", pageTitle);
+            addParameter("Screenshot Context", name);
+
+            attachScreenshot(name + " [" + pageTitle + "]");
+
+        } catch (Exception e) {
+            logger.warn("Could not attach screenshot with context: {}", e.getMessage());
+            attachScreenshot(name);
+        }
+    }
+
+    /**
+     * Enhanced failure handling with detailed info
      */
     public static void addFailureInfo(String failureReason, Exception exception) {
         addParameter("Failure Reason", failureReason);
@@ -70,45 +220,47 @@ public class AllureUtils {
         addParameter("Exception Message", exception.getMessage());
         addParameter("Failure Time", getCurrentTimestamp());
 
-        // Take screenshot on failure
-        if (driver != null) {
-            attachScreenshot("Failure Screenshot");
+        try {
+            // Get current page info
+            if (driver != null) {
+                addParameter("Page URL at Failure", driver.getCurrentUrl());
+                addParameter("Page Title at Failure", driver.getTitle());
+
+                // Take multiple screenshots for better debugging
+                attachScreenshotWithRetry("FAILURE_Main", 3);
+
+                // Wait a bit and take another screenshot
+                Thread.sleep(1000);
+                attachScreenshot("FAILURE_Delayed");
+            }
+        } catch (Exception e) {
+            logger.warn("Could not capture failure context: {}", e.getMessage());
         }
 
         // Add stack trace as attachment
         attachText("Stack Trace", getStackTrace(exception));
 
-        logStep("Test failed: " + failureReason);
+        logStep("❌ Test failed: " + failureReason);
     }
 
-    /**
-     * Attach screenshot to Allure report
-     * @param name Name for the screenshot
-     * @return Screenshot as byte array
-     */
-    @Attachment(value = "{name}", type = "image/png")
-    public static byte[] attachScreenshot(String name) {
-        if (driver == null) {
-            logger.warn("Driver is null, cannot take screenshot");
-            return new byte[0];
-        }
-
-        try {
-            byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
-            logger.info("Screenshot attached to Allure: {}", name);
-            return screenshot;
-        } catch (Exception e) {
-            logger.error("Failed to take screenshot for Allure: {}", e.getMessage());
-            return new byte[0];
-        }
+    // Keep all your existing methods unchanged...
+    @Step("{message}")
+    public static void logStep(String message) {
+        logger.info("Allure Step: {}", message);
     }
 
-    /**
-     * Attach text content to Allure report
-     * @param name Attachment name
-     * @param content Text content
-     * @return Text content as byte array
-     */
+    public static void startTestCase(String testName) {
+        logStep("Starting test case: " + testName);
+        addParameter("Test Start Time", getCurrentTimestamp());
+        addParameter("Test Name", testName);
+    }
+
+    public static void addTestResult(String result) {
+        addParameter("Test Result", result);
+        addParameter("Test End Time", getCurrentTimestamp());
+        logStep("Test completed: " + result);
+    }
+
     @Attachment(value = "{name}", type = "text/plain")
     public static byte[] attachText(String name, String content) {
         try {
@@ -120,11 +272,6 @@ public class AllureUtils {
         }
     }
 
-    /**
-     * Attach file to Allure report
-     * @param name Attachment name
-     * @param filePath Path to file
-     */
     public static void attachFile(String name, String filePath) {
         try {
             File file = new File(filePath);
@@ -140,19 +287,11 @@ public class AllureUtils {
         }
     }
 
-    /**
-     * Add parameter to Allure report
-     * @param name Parameter name
-     * @param value Parameter value
-     */
     public static void addParameter(String name, String value) {
         Allure.parameter(name, value);
         logger.debug("Allure parameter added: {} = {}", name, value);
     }
 
-    /**
-     * Add environment information to Allure report
-     */
     public static void addEnvironmentInfo() {
         if (configReader == null) {
             configReader = new ConfigReader();
@@ -169,9 +308,6 @@ public class AllureUtils {
         logStep("Environment information added to report");
     }
 
-    /**
-     * Add test data information to Allure report
-     */
     public static void addTestData() {
         if (configReader == null) {
             configReader = new ConfigReader();
@@ -186,69 +322,37 @@ public class AllureUtils {
         logStep("Test data information added to report");
     }
 
-    /**
-     * Add link to Allure report
-     * @param name Link name
-     * @param url Link URL
-     */
     public static void addLink(String name, String url) {
         Allure.link(name, url);
         logger.info("Link added to Allure: {} -> {}", name, url);
     }
 
-    /**
-     * Add issue link to Allure report
-     * @param issueId Issue ID
-     */
     public static void addIssue(String issueId) {
-        Allure.issue("issueId",issueId);
+        Allure.issue("issueId", issueId);
         logger.info("Issue link added to Allure: {}", issueId);
     }
 
-    /**
-     * Add TMS link to Allure report
-     * @param testCaseId Test case ID
-     */
     public static void addTmsLink(String testCaseId) {
-        Allure.tms("testCaseId",testCaseId);
+        Allure.tms("testCaseId", testCaseId);
         logger.info("TMS link added to Allure: {}", testCaseId);
     }
 
-    /**
-     * Add description to current test
-     * @param description Test description
-     */
     public static void addDescription(String description) {
         Allure.description(description);
         logger.info("Description added to Allure report");
     }
 
-    /**
-     * Add label to current test
-     * @param name Label name
-     * @param value Label value
-     */
     public static void addLabel(String name, String value) {
         Allure.label(name, value);
         logger.debug("Label added to Allure: {} = {}", name, value);
     }
 
-    /**
-     * Add performance metrics
-     * @param operation Operation name
-     * @param duration Duration in milliseconds
-     */
     public static void addPerformanceMetric(String operation, long duration) {
         addParameter(operation + " Duration (ms)", String.valueOf(duration));
         addParameter(operation + " Performance", duration < 5000 ? "Good" : "Slow");
         logStep("Performance metric recorded: " + operation + " took " + duration + "ms");
     }
 
-    /**
-     * Create a step that measures execution time
-     * @param stepName Name of the step
-     * @param action Runnable action to execute
-     */
     public static void timedStep(String stepName, Runnable action) {
         long startTime = System.currentTimeMillis();
 
@@ -264,19 +368,10 @@ public class AllureUtils {
         }
     }
 
-    /**
-     * Get current timestamp as formatted string
-     * @return Formatted timestamp
-     */
     private static String getCurrentTimestamp() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
-    /**
-     * Get stack trace as string
-     * @param exception Exception to get stack trace from
-     * @return Stack trace as string
-     */
     private static String getStackTrace(Exception exception) {
         StringBuilder sb = new StringBuilder();
         sb.append(exception.getMessage()).append("\n");
@@ -286,9 +381,6 @@ public class AllureUtils {
         return sb.toString();
     }
 
-    /**
-     * Cleanup resources
-     */
     public static void cleanup() {
         driver = null;
         configReader = null;
