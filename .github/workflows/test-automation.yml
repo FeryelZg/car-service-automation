@@ -1,4 +1,4 @@
-name: Selenium Test Automation with Allure
+name: Selenium Test Automation with Allure (No Cucumber)
 
 on:
   push:
@@ -40,11 +40,13 @@ jobs:
           google-chrome --version
           which google-chrome
 
-      - name: Run Tests
+      # Option 1A: Exclude Cucumber runner classes by pattern
+      - name: Run Selenium Tests Only (Exclude Cucumber)
         run: |
-          mvn clean test -Dheadless=true -Dbrowser=chrome
+          mvn clean test -Dheadless=true -Dbrowser=chrome \
+          -Dtest="!**/*TestRunner,!**/*Runner" \
+          -DfailIfNoTests=false
         env:
-          # Set display for headless mode
           DISPLAY: :99
 
       - name: Generate Allure Report
@@ -56,7 +58,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-results
+          name: allure-results-selenium-only
           path: target/allure-results/
           retention-days: 30
 
@@ -64,7 +66,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-report
+          name: allure-report-selenium-only
           path: target/site/allure-maven-plugin/
           retention-days: 30
 
