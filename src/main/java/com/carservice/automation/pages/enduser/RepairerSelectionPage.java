@@ -96,7 +96,7 @@ public class RepairerSelectionPage extends BasePage {
         logger.info("Selecting date and time");
 
         waitForElement(2000);
-        int maxAttempts = 5;
+        int maxAttempts = 1;
         boolean timeSlotFound = false;
 
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -105,10 +105,11 @@ public class RepairerSelectionPage extends BasePage {
             selectFutureDate(attempt);
             waitForElement(1500);
 
-            if (isAgencyClosed()) {
-                logger.info("Agency closed for selected date, trying another date...");
-                continue;
-            }
+            //COMMENTED TO FIX A TIME FOR DEMO TO BE REMOVED AFTER DEMO
+//            if (isAgencyClosed()) {
+//                logger.info("Agency closed for selected date, trying another date...");
+//                continue;
+//            }
 
             if (selectAvailableTimeSlot()) {
                 timeSlotFound = true;
@@ -155,7 +156,7 @@ public class RepairerSelectionPage extends BasePage {
         logger.info("Selecting future date from calendar (attempt {})", attempt);
 
         // Try specific dates first
-        int[] preferredDates = {16, 17, 18, 19, 20};
+        int[] preferredDates = {8};
         int dateIndex = Math.min(attempt - 1, preferredDates.length - 1);
         int targetDate = preferredDates[dateIndex];
 

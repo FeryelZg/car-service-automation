@@ -286,7 +286,7 @@ public class BookAppointmentTest extends BaseTest {
                 "Mechanical Repair Service"
         };
 
-        String selectedMileage = "60 000";
+        String selectedMileage = "60 000";
 
         // Check if we should skip file upload (useful for CI/CD environments)
         ConfigReader config = new ConfigReader();

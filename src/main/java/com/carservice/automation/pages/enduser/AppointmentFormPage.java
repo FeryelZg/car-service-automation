@@ -27,14 +27,8 @@ public class AppointmentFormPage extends BasePage {
     private static final String NEXT_BUTTON_XPATH = "//button[contains(@class, 'ot-button-primary') and (contains(., 'Next') or contains(., 'Suivant'))]";
 
     private static final String MULTIPLE_SERVICES_XPATH = "//div[contains(@class, 'tab')]//p[contains(normalize-space(text()), 'Multiple services')]/parent::div";
-//    private static final String SERVICES_DROPDOWN_XPATH = "//input[@aria-autocomplete='list' and @type='text' and contains(@autocomplete, 'a7')]";
-//    private static final String SERVICES_DROPDOWN_XPATH = "//ng-select[contains(@class, 'custom-Services')]//div[contains(@class, 'ng-input')]//input[@type='text']";
 
-//    private static final String SERVICES_DROPDOWN_CONTAINER_XPATH = "//div[contains(@class, 'ng-select-container')]";
-//    private static final String SERVICE_OPTION_XPATH = "//div[contains(@class, 'ng-option') and contains(text(), '%s')]";
     private static final String MILEAGE_DROPDOWN_XPATH = "//div[contains(@class, 'ng-value-container')]//div[contains(@class, 'ng-placeholder') and contains(text(), 'Select mileage')]/parent::div//input";
-    //private static final String MILEAGE_OPTION_XPATH = "//div[contains(@class, 'ng-option')]//span[contains(@class, 'ng-option-label') and normalize-space(text())='%s']";
-    // Replaces both regular and non-breaking spaces in the text before matching
     private static final String MILEAGE_OPTION_XPATH ="//div[contains(@class, 'ng-option')]//span[contains(@class, 'ng-option-label') and " +
                     "translate(normalize-space(.), '\u00A0\u202F', '  ') = '%s']";
     private static final String BREAKDOWN_CHECKBOX_MULTIPLE_XPATH = "//input[@type='checkbox' and contains(@id, 'BREAKDOWN')]";
@@ -527,7 +521,7 @@ public class AppointmentFormPage extends BasePage {
 
     /**
      * Select mileage from dropdown
-     * @param mileage Mileage value to select (e.g., "60 000")
+     * @param mileage Mileage value to select (e.g., "60000")
      */
     private void selectMileageFromDropdown(String mileage) {
         logger.info("Selecting mileage: {}", mileage);
